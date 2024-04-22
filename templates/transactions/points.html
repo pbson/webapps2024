@@ -1,0 +1,26 @@
+{% extends 'payapp/base.html' %}
+{% csrf_token %}
+
+{% block title %}
+    Points Transfer
+{% endblock %}
+
+
+{% block content %}
+    <h4>New Points</h4>
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Points</th>
+        </tr>
+        <tr>
+            <td>{{ src_username }}</td>
+            <td>{{ src_points }}</td>
+        </tr>
+        <tr>
+            <td>{{ dst_username }}</td>
+            <td>{{ dst_points }}</td>
+        </tr>
+    </table>
+    
+{% endblock %}

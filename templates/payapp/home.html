@@ -1,0 +1,106 @@
+{% extends 'payapp/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <div class="my-4">
+        <h2>Welcome, {{ user.username }}</h2>
+        <h4>Your Balance is: {{ user.balance }} {{ user.currency }}</h4>
+    </div>
+
+    <!-- Payment Requests Table -->
+    <div class="payment-requests mt-5">
+        <h3>Payment Requests</h3>
+        <div class="table-container">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>From</th>
+                        <th>To</th>
+                        <th>Amount</th>
+                        <th>Currency</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for payment_request in payment_requests %}
+                        <tr>
+                            <td>{% if payment_request.sender == user %}You{% else %}{{ payment_request.sender }}{% endif %}</td>
+                            <td>{% if payment_request.recipient == user %}You{% else %}
+                                {{ payment_request.recipient }}{% endif %}</td>
+                            <td>{{ payment_request.amount }}</td>
+                            <td>{{ payment_request.currency }}</td>
+                            <td>{{ payment_request.timestamp|date:"N d, Y H:i" }}</td>
+                            <td>
+                                {% if payment_request.status == 'PENDING' %}
+                                    <span class="badge badge-warning">Pending</span>
+                                {% elif payment_request.status == 'COMPLETED' %}
+                                    <span class="badge badge-success">Completed</span>
+                                {% elif payment_request.status == 'REJECTED' %}
+                                    <span class="badge badge-danger">Rejected</span>
+                                {% else %}
+                                    <span class="badge badge-info">{{ payment_request.status }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if payment_request.recipient == user and payment_request.status == 'PENDING' %}
+                                    <div class="d-flex justify-content-around">
+                                        <a href="{% url 'approve_payment_request' payment_request.id %}"
+                                           class="btn btn-success btn-sm">Approve</a>
+                                        <a href="{% url 'reject_payment_request' payment_request.id %}"
+                                           class="btn btn-danger btn-sm">Reject</a>
+                                    </div>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="6">No payment requests found.</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- General Transactions Table -->
+    <div class="transactions mt-5">
+        <h3>Transactions</h3>
+        <div class="table-container">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>From</th>
+                        <th>To</th>
+                        <th>Amount</th>
+                        <th>Currency</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for transaction in transactions %}
+                        <tr>
+                            <td>{% if transaction.sender == user %}You{% else %}{{ transaction.sender }}{% endif %}</td>
+                            <td>{% if transaction.recipient == user %}You{% else %}
+                                {{ transaction.recipient }}{% endif %}</td>
+                            <td>{{ transaction.amount }}</td>
+                            <td>{{ transaction.currency }}</td>
+                            <td>{{ transaction.timestamp|date:"N d, Y H:i" }}</td>
+                            <td><span class="badge badge-success">Completed</span></td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="7">No transactions found.</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}
