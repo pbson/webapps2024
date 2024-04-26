@@ -11,6 +11,7 @@ class TimestampHandler:
         return datetime.utcnow().isoformat() + 'Z'
 
 if __name__ == '__main__':
+    print("Starting the timestamp server...")
     handler = TimestampHandler()
     server = make_server(Timestamp, handler, '127.0.0.1', 10000)
     server.serve()
