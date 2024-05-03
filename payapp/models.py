@@ -21,6 +21,7 @@ class PaymentRequest(models.Model):
         ('REJECTED', 'Rejected'),
     ]
 
+
     sender = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='sent_payment_requests', on_delete=models.CASCADE)
     recipient = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='received_payment_requests', on_delete=models.CASCADE)
     amount = models.DecimalField(max_digits=10, decimal_places=2)

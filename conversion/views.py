@@ -34,11 +34,19 @@ def convert_currency(base_currency, target_currency, amount):
 
 class ConvertCurrency(APIView):
     def get(self, request, base_currency, target_currency, amount):
-        # Convert the amount string to a decimal for calculation
-        amount = float(amount)
+        # Validate currencies
+        valid_currencies = {'USD', 'EUR', 'GBP'}
+        if base_currency.upper() not in valid_currencies or target_currency.upper() not in valid_currencies:
+            return Response({'error': 'Unsupported currency code.'}, status=400)
+
+        # Validate and convert amount
+        try:
+            amount = float(amount)
+        except ValueError:
+            return Response({'error': 'Invalid amount format.'}, status=400)
+
         # Convert the currency
         converted_amount = convert_currency(base_currency.upper(), target_currency.upper(), amount)
-
         # Check if conversion was successful
         if converted_amount is None:
             return Response({'error': 'Conversion rate not available.'}, status=400)
@@ -47,11 +55,13 @@ class ConvertCurrency(APIView):
         data = {
             'base_currency': base_currency,
             'target_currency': target_currency,
-            'amount': amount,
-            'converted_amount': converted_amount,
+            'amount': round(amount, 10),
+            'converted_amount': round(converted_amount, 10),
         }
         serializer = CurrencyConversionSerializer(data=data)
         if serializer.is_valid():
+            print(serializer.data)
             return Response(serializer.data)
         else:
+            print(serializer.errors)
             return Response(serializer.errors, status=400)

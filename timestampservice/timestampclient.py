@@ -12,7 +12,6 @@ class TimestampClient:
 
     def get_current_timestamp(self):
         try:
-            # This is a blocking call.
             return self.client.getCurrentTimestampISO()
         except TException as e:
             print('Failed to get timestamp:', e)

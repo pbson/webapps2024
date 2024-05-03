@@ -3,3 +3,4 @@ CURRENCY_CHOICES = [
     ('USD', 'US Dollar'),
     ('EUR', 'Euro'),
 ]
+

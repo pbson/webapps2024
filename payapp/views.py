@@ -21,8 +21,6 @@ def get_timestamp():
         return JsonResponse({'timestamp': timestamp})
     else:
         return JsonResponse({'error': 'Unable to fetch timestamp'}, status=500)
-
-
 def process_transaction(request, sender, recipient, amount, currency):
     recipient = User.objects.get(username=recipient)
 
@@ -61,11 +59,13 @@ def process_transaction(request, sender, recipient, amount, currency):
         timestamp=get_timestamp(),
     )
 
-
 @csrf_protect
 def home(request):
     if not request.user.is_authenticated:
         return redirect('login')
+
+    if request.user.is_superuser:
+        return redirect('admin:index')
 
     user_balance = request.user.balance
     user_transactions = Transaction.objects.filter(
@@ -88,7 +88,6 @@ def home(request):
     }
 
     return render(request, 'payapp/home.html', context)
-
 
 @csrf_protect
 @login_required
@@ -127,9 +126,10 @@ def send_money(request):
         else:
             messages.error(request, 'Please correct the errors below in the form.')
     else:
+        if request.user.is_superuser:
+            return redirect('admin:index')
         form = SendMoneyForm(user=request.user)
     return render(request, 'payapp/send_money.html', {'form': form})
-
 
 @csrf_protect
 @login_required
@@ -165,10 +165,11 @@ def request_money(request):
         else:
             messages.error(request, 'Please correct the errors below in the form.')
     else:
+        if request.user.is_superuser:
+            return redirect('admin:index')
         form = RequestMoneyForm(user=request.user)
 
     return render(request, 'payapp/request_money.html', {'form': form})
-
 
 @login_required
 @csrf_protect
@@ -185,7 +186,6 @@ def reject_payment_request(request, payment_request_id):
     except Exception as e:
         messages.error(request, f"An error occurred: {str(e)}")
     return redirect('home')
-
 
 @login_required
 @csrf_protect

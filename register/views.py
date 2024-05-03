@@ -21,14 +21,7 @@ def register_user(request):
 
             # Convert balance if necessary
             if selected_currency in ['EUR', 'USD']:
-                api_url = f"http://localhost:8000/conversion/GBP/{selected_currency}/{initial_balance_gbp}"
-                response = requests.get(api_url)
-                if response.status_code == 200:
-                    conversion_result = response.json()
-                    user.balance = conversion_result['converted_amount']
-                else:
-                    messages.error(request, "Currency conversion failed. Setting balance in GBP.")
-                    user.balance = initial_balance_gbp
+                user.balance = convert_currency(request, 'GBP', selected_currency, initial_balance_gbp)
             else:
                 user.balance = initial_balance_gbp
 
@@ -44,9 +37,10 @@ def register_user(request):
     else:
         if request.user.is_authenticated:
             return redirect('home')
+        if request.user.is_superuser:
+            return redirect('admin:index')
         form = RegisterForm()
         return render(request, 'register/register.html', {'register_user': form})
-
 
 @csrf_protect
 def login_user(request):
@@ -67,9 +61,10 @@ def login_user(request):
     else:
         if request.user.is_authenticated:
             return redirect('home')
+        if request.user.is_superuser:
+            return redirect('admin:index')
         form = AuthenticationForm()
         return render(request, 'register/login.html', {'login_user': form})
-
 
 @csrf_protect
 def logout_user(request):
